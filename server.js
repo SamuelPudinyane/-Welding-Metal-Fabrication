@@ -1,39 +1,25 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 10000;
-const allowedOrigins = new Set([
-    'https://weldingandmetalfabrication.co.za',
-    'https://www.weldingandmetalfabrication.co.za',
-    'https://welding-metal-fabrication.onrender.com'
-]);
 const recentRequests = new Map();
 
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
 app.use(express.json({ limit: '20kb' }));
-app.use((request, response, next) => {
-    const origin = request.get('origin');
-    if (origin && allowedOrigins.has(origin)) {
-        response.set('Access-Control-Allow-Origin', origin);
-        response.set('Vary', 'Origin');
-    }
-    response.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    response.set('Access-Control-Allow-Headers', 'Content-Type');
-    if (request.method === 'OPTIONS') return response.sendStatus(204);
-    next();
-});
-
-app.get('/', (_request, response) => response.json({
-    status: 'ok',
-    service: 'Welding & Metal Fabrication email service'
-}));
+app.use('/images', express.static(path.join(__dirname, 'images'), { maxAge: '7d' }));
+app.get('/slider.js', (_request, response) => response.sendFile(path.join(__dirname, 'slider.js')));
+app.get('/quote-form.js', (_request, response) => response.sendFile(path.join(__dirname, 'quote-form.js')));
+app.get('/privacy-policy.html', (_request, response) => response.sendFile(path.join(__dirname, 'privacy-policy.html')));
+app.get('/terms-of-service.html', (_request, response) => response.sendFile(path.join(__dirname, 'terms-of-service.html')));
+app.get('/', (_request, response) => response.sendFile(path.join(__dirname, 'index.html')));
 app.get('/health', (_request, response) => response.json({ status: 'ok' }));
 
 app.post('/quote', async (request, response) => {
     const origin = request.get('origin');
-    if (!origin || !allowedOrigins.has(origin)) {
+    if (origin && new URL(origin).host !== request.get('host')) {
         return response.status(403).json({ error: 'Request origin is not allowed.' });
     }
 

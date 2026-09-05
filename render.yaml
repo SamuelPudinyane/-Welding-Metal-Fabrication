@@ -1,22 +1,18 @@
 services:
   - type: web
-    name: welding-metal-fabrication
-    runtime: static
-    buildCommand: echo "Static site ready"
-    staticPublishPath: .
+    name: welding-and-metal-fabrication
+    runtime: node
+    plan: free
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
     autoDeployTrigger: commit
+    healthCheckPath: /health
     domains:
       - weldingandmetalfabrication.co.za
-    headers:
-      - path: /*
-        name: X-Content-Type-Options
-        value: nosniff
-      - path: /*
-        name: X-Frame-Options
-        value: SAMEORIGIN
-      - path: /*
-        name: Referrer-Policy
-        value: strict-origin-when-cross-origin
-      - path: /images/*
-        name: Cache-Control
-        value: public, max-age=604800
+    envVars:
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: MAIL_TO
+        sync: false

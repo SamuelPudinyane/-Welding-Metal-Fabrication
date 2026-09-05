@@ -14,7 +14,7 @@ quoteForm?.addEventListener('submit', async (event) => {
     formStatus.textContent = 'Sending your question...';
 
     try {
-        const response = await fetch('https://welding-and-metal-fabrication.onrender.com/quote', {
+        const response = await fetch('/quote', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
