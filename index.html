@@ -707,6 +707,26 @@
             line-height: 1.65;
         }
 
+        .form-status {
+            min-height: 1.5em;
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.92rem;
+        }
+
+        .form-status.success {
+            color: #7ee2a8;
+        }
+
+        .form-status.error {
+            color: #ff9b91;
+        }
+
+        .website-field {
+            position: absolute;
+            left: -9999px;
+        }
+
         footer {
             padding: 0 24px 42px;
         }
@@ -1114,7 +1134,7 @@
 
                             <article class="contact-card">
                                 <small>Email</small>
-                                <h3><a href="mailto:piuspudinyane3141@gmail.com">piuspudinyane3141@gmail.com</a></h3>
+                                <h3><a href="mailto:pudinyanesamueltiisetso@gmail.com">pudinyanesamueltiisetso@gmail.com</a></h3>
                                 <p>Useful for detailed requests and follow-up information.</p>
                             </article>
 
@@ -1133,10 +1153,10 @@
                     </div>
 
                     <div class="contact-panel">
-                        <h2>Request a quote</h2>
-                        <p>Visitors now get a more premium form experience with better spacing, contrast and readability.</p>
+                        <h2>Ask a question or request a quote</h2>
+                        <p>Tell us what you need and we will reply by email as soon as possible.</p>
 
-                        <form action="mailto:piuspudinyane3141@gmail.com" method="POST" enctype="text/plain">
+                        <form id="quote-form">
                             <div class="field-row">
                                 <div>
                                     <label for="name">Name</label>
@@ -1148,10 +1168,15 @@
                                 </div>
                             </div>
                             <div>
-                                <label for="message">Project details</label>
-                                <textarea id="message" name="message" placeholder="Tell us what you need, your location, measurements if available, and whether you need materials included." required></textarea>
+                                <label for="message">What would you like to ask?</label>
+                                <textarea id="message" name="message" maxlength="5000" placeholder="Ask a question or describe your project, location, measurements, and whether you need materials included." required></textarea>
                             </div>
-                            <button class="btn btn-primary" type="submit">Send Message</button>
+                            <div class="website-field" aria-hidden="true">
+                                <label for="website">Website</label>
+                                <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+                            </div>
+                            <button class="btn btn-primary" type="submit">Send Question</button>
+                            <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
                             <p class="form-note">Tip: WhatsApp is usually the fastest option if you want to send project photos or discuss design ideas quickly.</p>
                         </form>
                     </div>
@@ -1174,5 +1199,6 @@
             </div>
         </footer>
     </div>
+    <script defer src="quote-form.js"></script>
 </body>
 </html>
