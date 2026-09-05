@@ -25,6 +25,10 @@ app.use((request, response, next) => {
     next();
 });
 
+app.get('/', (_request, response) => response.json({
+    status: 'ok',
+    service: 'Welding & Metal Fabrication email service'
+}));
 app.get('/health', (_request, response) => response.json({ status: 'ok' }));
 
 app.post('/quote', async (request, response) => {
