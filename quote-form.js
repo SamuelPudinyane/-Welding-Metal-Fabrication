@@ -13,11 +13,15 @@ quoteForm?.addEventListener('submit', async (event) => {
     formStatus.className = 'form-status';
     formStatus.textContent = 'Sending your question...';
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30_000);
+
     try {
         const response = await fetch('/quote', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
+            signal: controller.signal
         });
 
         const result = await response.json().catch(() => ({}));
@@ -29,9 +33,13 @@ quoteForm?.addEventListener('submit', async (event) => {
         formStatus.className = 'form-status success';
         formStatus.textContent = 'Thank you. Your question was sent successfully.';
     } catch (error) {
+        const message = error.name === 'AbortError'
+            ? 'The email server took too long to respond.'
+            : error.message;
         formStatus.className = 'form-status error';
-        formStatus.textContent = `${error.message} Please try again or contact us on WhatsApp.`;
+        formStatus.textContent = `${message} Please try again or contact us on WhatsApp.`;
     } finally {
+        clearTimeout(timeout);
         submitButton.disabled = false;
         submitButton.textContent = 'Send Question';
     }

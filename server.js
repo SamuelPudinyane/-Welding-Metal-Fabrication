@@ -5,6 +5,24 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 10000;
 const recentRequests = new Map();
+const smtpUser = process.env.SMTP_USER?.trim();
+const smtpPassword = process.env.SMTP_PASS?.replace(/\s/g, '');
+const mailRecipient = process.env.MAIL_TO?.trim() || smtpUser;
+const mailConfigured = Boolean(smtpUser && smtpPassword && mailRecipient);
+const transporter = mailConfigured ? nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 20_000,
+    auth: {
+        user: smtpUser,
+        pass: smtpPassword
+    },
+    disableFileAccess: true,
+    disableUrlAccess: true
+}) : null;
 
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
@@ -25,6 +43,10 @@ app.post('/quote', async (request, response) => {
 
     const { name, email, message, website } = request.body || {};
     if (website) return response.json({ sent: true });
+    if (!mailConfigured) {
+        console.error('Email delivery is not configured: check SMTP_USER, SMTP_PASS and MAIL_TO.');
+        return response.status(503).json({ error: 'Email delivery is not configured yet.' });
+    }
     if (![name, email, message].every((value) => typeof value === 'string' && value.trim())) {
         return response.status(400).json({ error: 'Please complete every required field.' });
     }
@@ -40,16 +62,9 @@ app.post('/quote', async (request, response) => {
     recentRequests.set(clientAddress, now);
 
     try {
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS
-            }
-        });
         await transporter.sendMail({
-            from: `Welding website <${process.env.SMTP_USER}>`,
-            to: process.env.MAIL_TO || process.env.SMTP_USER,
+            from: `Welding website <${smtpUser}>`,
+            to: mailRecipient,
             replyTo: email.trim(),
             subject: `Website question from ${name.trim()}`,
             text: `Name: ${name.trim()}\nEmail: ${email.trim()}\n\nQuestion / project details:\n${message.trim()}`
