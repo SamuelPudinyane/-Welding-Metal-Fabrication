@@ -30,6 +30,7 @@ app.use(express.json({ limit: '20kb' }));
 app.use('/images', express.static(path.join(__dirname, 'images'), { maxAge: '7d' }));
 app.get('/slider.js', (_request, response) => response.sendFile(path.join(__dirname, 'slider.js')));
 app.get('/quote-form.js', (_request, response) => response.sendFile(path.join(__dirname, 'quote-form.js')));
+app.get('/video-player.js', (_request, response) => response.sendFile(path.join(__dirname, 'video-player.js')));
 app.get('/privacy-policy.html', (_request, response) => response.sendFile(path.join(__dirname, 'privacy-policy.html')));
 app.get('/terms-of-service.html', (_request, response) => response.sendFile(path.join(__dirname, 'terms-of-service.html')));
 app.get('/', (_request, response) => response.sendFile(path.join(__dirname, 'index.html')));
@@ -41,7 +42,7 @@ app.post('/quote', async (request, response) => {
         return response.status(403).json({ error: 'Request origin is not allowed.' });
     }
 
-    const { name, email, message, website } = request.body || {};
+    const { name, email, subject, message, website } = request.body || {};
     if (website) return response.json({ sent: true });
     if (!mailConfigured) {
         console.error('Email delivery is not configured: check SMTP_USER, SMTP_PASS and MAIL_TO.');
@@ -66,8 +67,8 @@ app.post('/quote', async (request, response) => {
             from: `Welding website <${smtpUser}>`,
             to: mailRecipient,
             replyTo: email.trim(),
-            subject: `Website question from ${name.trim()}`,
-            text: `Name: ${name.trim()}\nEmail: ${email.trim()}\n\nQuestion / project details:\n${message.trim()}`
+            subject: `${typeof subject === 'string' && subject.trim() ? subject.trim().slice(0, 120) : 'Website question'} — ${name.trim()}`,
+            text: `Name: ${name.trim()}\nEmail: ${email.trim()}\nSubject: ${typeof subject === 'string' ? subject.trim() : ''}\n\nQuestion / project details:\n${message.trim()}`
         });
         response.json({ sent: true });
     } catch (error) {

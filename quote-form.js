@@ -8,6 +8,7 @@ quoteForm?.addEventListener('submit', async (event) => {
     const formData = new FormData(quoteForm);
     const payload = Object.fromEntries(formData.entries());
 
+    const originalButtonText = submitButton.textContent;
     submitButton.disabled = true;
     submitButton.textContent = 'Sending...';
     formStatus.className = 'form-status';
@@ -41,6 +42,6 @@ quoteForm?.addEventListener('submit', async (event) => {
     } finally {
         clearTimeout(timeout);
         submitButton.disabled = false;
-        submitButton.textContent = 'Send Question';
+        submitButton.textContent = originalButtonText;
     }
 });
